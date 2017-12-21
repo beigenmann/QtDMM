@@ -830,6 +830,22 @@ void DMM::readQM1537Continuous_( const QByteArray & data, int id, ReadEvent::Dat
 	unit = "F";
 	special = "CA";
   }
+  else if (pStr[11] & 0x02)
+  {
+	/* Temperatur */
+	unit = "°C";
+	special = "TE";
+  printf("TempC\n");
+  fflush(stdout);
+    }
+  else if (pStr[11] & 0x01)
+  {
+	/* Temperatur */
+	unit = "°F";
+	special = "TE";
+  printf("TempF\n");
+  fflush(stdout);
+  }
   else if (pStr[10] & 0x02)
   {
 	/* Duty cycle */
@@ -978,6 +994,19 @@ void DMM::readQM1537Continuous( const QByteArray & data, int id, ReadEvent::Data
     /* Capacitance */
     unit = "F";
     special = "CA";
+  }
+  else if (pStr[10] & 0x02)
+  {
+	/* Temperatur */
+	unit = "C";
+	special = "TE";
+   doACDC = false;
+  }
+  else if (pStr[10] & 0x01){
+	/* Temperatur */
+	unit = "F";
+  doACDC = false;
+	special = "TE";
   }
   else if (pStr[9] & 0x02)
   {
