@@ -178,7 +178,7 @@ ReaderThread::socketNotifierSLOT()
     { 
       m_fifo[m_length] = byte;
 
-      //fprintf( stderr, "READ: %02X - %02X %d\n", (unsigned)byte, (unsigned)byte & 0xf0, m_length );
+     // printf( stderr, "READ: %02X - %02X %d\n", (unsigned)byte, (unsigned)byte & 0xf0, m_length );
       
       if (checkFormat())
       {
@@ -195,7 +195,8 @@ ReaderThread::socketNotifierSLOT()
         m_sendRequest = true;
         m_length = 0;
 
-				emit readEvent( m_buffer, m_id, m_format );
+      QByteArray  a(m_buffer,formatLength());
+				emit readEvent( a, m_id, m_format );
         //QApplication::postEvent( m_receiver, 
         //    new ReadEvent( m_buffer, formatLength(), m_id, m_format ) );
         

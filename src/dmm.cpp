@@ -163,7 +163,7 @@ DMM::readEventSLOT( const QByteArray & data, int id, ReadEvent::DataFormat df )
         }
         fprintf( stdout, "\n" );
       }
-
+      
       switch (df)
       {
       case ReadEvent::Metex14:
@@ -183,7 +183,7 @@ DMM::readEventSLOT( const QByteArray & data, int id, ReadEvent::DataFormat df )
         break;
       case ReadEvent::IsoTech:
         readIsoTechContinuous( data, id, df );
-        //readIsoTechContinuous( re );
+        //readIsoTechContinuous( re )
         break;
       case ReadEvent::VC940Continuous:
         readVC940Continuous( data, id, df );
@@ -743,6 +743,141 @@ void DMM::readASCII( const QByteArray & data, int id, ReadEvent::DataFormat df )
 
   m_error = tr( "Connected" ) + " (" + m_name + " @ " + m_device + ")";
 }
+void DMM::readQM1537Continuous_( const QByteArray & data, int id, ReadEvent::DataFormat /*df*/ )
+{
+  QString val;
+  QString special;
+  QString unit;
+  const char *pStr = data.data();
+
+  if (pStr[0]!=0x0A)
+	  return;
+  if (pStr[1] == '-')
+	val = " -";
+  else
+	val = "  ";
+
+  if ((pStr[2] == ';') &&
+	  (pStr[3] == '0') &&
+	  (pStr[4] == ':') &&
+	  (pStr[5] == ';'))
+  {
+	 val += "  0L";
+  }
+  else
+  {
+	val += pStr[2];
+	val += pStr[3];
+	val += pStr[4];
+	val += pStr[5];
+  }
+
+  bool showBar = true;
+  bool doACDC = false;
+  bool doUnits = true;
+
+  switch (pStr[7])
+  {
+	case 0x31:
+	  val = insertComma (val,1);
+	  break;
+	case 0x32:
+	  val = insertComma (val,2);
+	  break;
+	case 0x34:
+	  val = insertComma (val,3);
+	  break;
+	// default case is no comma/decimal point at all.
+  }
+
+  double d_val = val.toDouble();
+
+  /* OK, now let's figure out what we're looking at. */
+  if (pStr[11] & 0x80)
+  {
+	/* Voltage, including diode test */
+	unit = "V";
+	if (pStr[10] & 0x04)
+	{
+	  /* Diode test */
+	  special = "DI";
+	  unit = "V";
+	}
+	else
+	  doACDC = true;
+  }
+  else if (pStr[11] & 0x40)
+  {
+	/* Current */
+	unit = "A";
+	doACDC = true;
+  }
+  else if (pStr[11] & 0x20)
+  {
+	/* Resistance, including continuity test */
+	unit = "Ohm";
+	special = "OH";
+  }
+  else if (pStr[11] & 0x08)
+  {
+	/* Frequency */
+	unit = "Hz";
+	special = "HZ";
+  }
+  else if (pStr[11] & 0x04)
+  {
+	/* Capacitance */
+	unit = "F";
+	special = "CA";
+  }
+  else if (pStr[10] & 0x02)
+  {
+	/* Duty cycle */
+	unit = "%";
+	special = "PC";
+	doUnits = false;
+  }
+
+  if (doACDC)
+  {
+	if (pStr[8] & 0x08)
+	  special = "AC";
+	else
+	  special = "DC";
+  }
+
+  if (doUnits)
+  {
+	if (pStr[9] & 0x02)
+	{
+	  d_val /= 1e9;
+	  unit.prepend ('n');
+	}
+	else if (pStr[10] & 0x80)
+	{
+	  d_val /= 1e6;
+	  unit.prepend ('u');
+	}
+	else if (pStr[10] & 0x40)
+	{
+	  d_val /= 1e3;
+	  unit.prepend ('m');
+	}
+	else if (pStr[10] & 0x20)
+	{
+	  d_val *= 1e3;
+	  unit.prepend ('k');
+	}
+	else if (pStr[10] & 0x10)
+	{
+	  d_val *= 1e6;
+	  unit.prepend ('M');
+	}
+  }
+
+  Q_EMIT value( d_val, val, unit, special, showBar, id );
+  m_error = tr( "Connected %1" ).arg(m_device);
+}
 
 void DMM::readQM1537Continuous( const QByteArray & data, int id, ReadEvent::DataFormat /*df*/ )
 {
@@ -767,7 +902,6 @@ void DMM::readQM1537Continuous( const QByteArray & data, int id, ReadEvent::Data
     val = "  ";
   }
   else goto error;
-  
 
   if(0)
   {
@@ -815,31 +949,22 @@ void DMM::readQM1537Continuous( const QByteArray & data, int id, ReadEvent::Data
   }
 
   double d_val = val.toDouble();
-
-  /* OK, now let's figure out what we're looking at. */
-  if (pStr[10] & 0x80)
+ if (pStr[10] & 0x80)
   {
-    /* Voltage, including diode test */
+    /* Current */
     unit = "V";
-    if (pStr[9] & 0x04)
-    {
-      /* Diode test */
-      special = "DI";
-      unit = "V";
-    }
-    else
-      doACDC = true;
+    doACDC = true;
   }
   else if (pStr[10] & 0x40)
   {
-    /* Current */
+    /* Resistance, including continuity test */
     unit = "A";
     doACDC = true;
   }
   else if (pStr[10] & 0x20)
   {
-    /* Resistance, including continuity test */
-    unit = "Ohm";
+    	/* Resistance, including continuity test */
+	  unit = "Ohm";
     special = "OH";
   }
   else if (pStr[10] & 0x08)
