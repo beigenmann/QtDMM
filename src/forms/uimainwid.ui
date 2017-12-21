@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <author>Matthias Toussaint</author>
+ <class>UIMainWid</class>
+ <widget class="QFrame" name="UIMainWid">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>605</width>
+    <height>496</height>
+   </rect>
+  </property>
+   <property name="frameShape">
+   <enum>QFrame::StyledPanel</enum>
+  </property>
+  <property name="frameShadow">
+   <enum>QFrame::Raised</enum>
+  </property>
+  <layout class="QVBoxLayout">
+   <property name="spacing">
+    <number>5</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout">
+     <property name="spacing">
+      <number>5</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="DMMGraph" name="ui_graph" native="true">
+       <property name="sizePolicy">
+	<sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+	 <horstretch>0</horstretch>
+	 <verstretch>0</verstretch>
+	</sizepolicy>
+       </property>
+       <property name="minimumSize">
+	<size>
+	 <width>0</width>
+	 <height>60</height>
+	</size>
+       </property>
+       <property name="cursor">
+	<cursorShape>ArrowCursor</cursorShape>
+       </property>
+       <property name="whatsThis">
+	<string>This is the plotting area for the transient recorder. It is widely configurable by clicking the &lt;b&gt;config ...&lt;/b&gt; button to the right. Data aquisition may be started by hand, at a specific time or automatically triggered by the measured value itself &lt;i&gt;(See configuration dialog)&lt;/i&gt;&lt;p&gt;
+The maximum resolution for data aquisition is 1/10th of a second, but may also be configured to sample once a week or what ever you want.
+&lt;p&gt;
+&lt;b&gt;Note:&lt;/b&gt; Connecting to the DMM as well as a change of the measuring unit automatically clears the graph.</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DMMGraph</class>
+   <extends>QWidget</extends>
+   <header>dmmgraph.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

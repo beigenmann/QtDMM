@@ -749,8 +749,14 @@ void DMM::readQM1537Continuous( const QByteArray & data, int id, ReadEvent::Data
   QString val;
   QString special;
   QString unit;
-  const char *pStr = data.data();
-//  if (pStr[0]!=0x0A) goto error;
+  const char *pStr1 = data.data();
+  const char *pStr ;
+  if (pStr1[0]!=0x0A) {
+    pStr = pStr1;
+  }
+  else{
+     pStr = &pStr1[1];
+  }
 
   if (pStr[0] == '-')
   {
@@ -762,17 +768,11 @@ void DMM::readQM1537Continuous( const QByteArray & data, int id, ReadEvent::Data
   }
   else goto error;
   
-  for(int i=1;i<4;i++)
-  {
-    if(pStr[i]<'0')
-      goto error;
-    if(pStr[i]>'9')
-      goto error;
-  }
+
   if(0)
   {
     error:
-      printf("Data error!\n");
+      printf("Data error!%s\n",pStr);
       return;
   }  
   
@@ -780,6 +780,11 @@ void DMM::readQM1537Continuous( const QByteArray & data, int id, ReadEvent::Data
       (pStr[2] == '0') &&
       (pStr[3] == ':') &&
       (pStr[4] == ';'))
+  {
+     val += "  0L";
+  } 
+  else
+   if (pStr[1] == '?') 
   {
      val += "  0L";
   } 
